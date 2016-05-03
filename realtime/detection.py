@@ -16,16 +16,32 @@ hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 cam = VideoCamera()
 
+skirtCascade = cv2.CascadeClassifier("haarcascades/skirts.xml")
+faceCascade = cv2.CascadeClassifier("haarcascades/haarcascade_frontalface_default.xml")
+
 while cam.video.isOpened():
 	#Get the image frame
 	image = cam.get_frame()
 
 	image = imutils.resize(image, width=min(400, image.shape[1]))
+
 	orig = image.copy()
+
+
+	
+	faces = faceCascade.detectMultiScale(image, 1.1 , 5)
+
+	for (x, y, w, h) in faces:
+		cv2.rectangle(image, (x,y), (x+w, y+h), (255, 0, 0), 2)
+
+	skirts = skirtCascade.detectMultiScale(image, 5 , 5)
+	for (x, y, w, h) in skirts:
+		cv2.rectangle(image, (x,y), (x+w, y+h), (0, 0, 255), 4)
 
 	# detect people in the image
 	(rects, weights) = hog.detectMultiScale(image, winStride=(4, 4),
 		padding=(8, 8), scale=1.05)
+
 
 	# draw the original bounding boxes
 	# for (x, y, w, h) in rects:
@@ -40,6 +56,9 @@ while cam.video.isOpened():
 	# draw the final bounding boxes
 	for (xA, yA, xB, yB) in pick:
 		cv2.rectangle(image, (xA, yA), (xB, yB), (0, 255, 0), 2)
+
+
+	
 
 	# show the output images
 	cv2.imshow("After NMS", image)
