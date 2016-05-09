@@ -6,6 +6,7 @@ class VideoCamera(object):
         # from a webcam, comment the line below out and use a video file
         # instead.
         self.video = cv2.VideoCapture(0)
+        #self.video = cv2.VideoCapture("photos/move.mov")
 
     def __del__(self):
         self.video.release()
