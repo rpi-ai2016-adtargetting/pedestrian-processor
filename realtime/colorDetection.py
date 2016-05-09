@@ -12,7 +12,7 @@ def crop_image(file):
 	img = Image.open(file);
 	halfWidth = img.size[0]/2
 	halfHeight = img.size[1] / 2
-	img2 = img.crop((halfWidth - 30, halfHeight - 95, halfWidth + 30, halfHeight+25))
+	img2 = img.crop((halfWidth - 30, halfHeight, halfWidth + 30, halfHeight+95))
 	img2.save("img.jpg");
 
 # find the main color of the file
@@ -39,8 +39,8 @@ def determine_color(file):
 	print (r);
 	print (g);
 	print (b);
-	error_allowance = 5;
-	error_allowance2 = 30;
+	error_allowance = 45;
+	error_allowance2 = 50;
 	if(255-error_allowance <= r <= 255 or (0 <= g <= error_allowance2 and 0 <= b <= error_allowance2)):
 		print "red"
 	elif(255-error_allowance <= g <= 255 or (0 <= r <= error_allowance2 and 0 <= b <= error_allowance2)):
@@ -50,7 +50,7 @@ def determine_color(file):
 	else:
 		print "grey";
 
-wholeFileName = "dress5.jpg";
+wholeFileName = "dress2.jpg";
 resize(wholeFileName);
 crop_image(wholeFileName);
 determine_color("img.jpg");
