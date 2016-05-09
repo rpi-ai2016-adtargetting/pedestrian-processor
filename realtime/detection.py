@@ -22,7 +22,7 @@ hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 faceCascade = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
-genderCascade = cv2.CascadeClassifier("./haarcascade_gender_default.xml")
+genderCascade = cv2.CascadeClassifier("./haarcascade_gender_alt.xml")
 
 cam = VideoCamera()
 
