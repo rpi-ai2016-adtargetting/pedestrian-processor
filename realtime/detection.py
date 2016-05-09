@@ -7,6 +7,7 @@ import imutils
 import cv2
 
 from camera import VideoCamera
+import colorDetection
 
 from PIL import Image
 
@@ -21,32 +22,20 @@ hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
 faceCascade = cv2.CascadeClassifier('./haarcascade_frontalface_default.xml')
+genderCascade = cv2.CascadeClassifier("./haarcascade_gender_default.xml")
 
 cam = VideoCamera()
-
-skirtCascade = cv2.CascadeClassifier("haarcascades/skirts.xml")
-faceCascade = cv2.CascadeClassifier("haarcascades/haarcascade_frontalface_default.xml")
 
 while cam.video.isOpened():
 	#Get the image frame
 	image = cam.get_frame()
 	cv2_im = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
 
-
 	image = imutils.resize(image, width=min(400, image.shape[1]))
 
 	orig = image.copy()
 
-
-
 	faces = faceCascade.detectMultiScale(image, 1.1 , 5)
-
-	for (x, y, w, h) in faces:
-		cv2.rectangle(image, (x,y), (x+w, y+h), (255, 0, 0), 2)
-
-	skirts = skirtCascade.detectMultiScale(image, 5 , 5)
-	for (x, y, w, h) in skirts:
-		cv2.rectangle(image, (x,y), (x+w, y+h), (0, 0, 255), 4)
 
 	# detect people in the image
 	(rects, weights) = hog.detectMultiScale(image, winStride=(4, 4),
@@ -75,8 +64,21 @@ while cam.video.isOpened():
 			xB = x + scale + w;
 			yA = y - (scale / 2);
 			yB = y + (10 * scale)+ h;
-			cv2.rectangle(image, (xA, yA), (xB, yB), (0, 255, 0), 2)
-			#image = image[yA:yB, xA:xB]
+
+			cropped_face = image[yA:yB, xA:xB]
+			genders = genderCascade.detectMultiScale(cropped_face, 1.1, 5)
+			color = (255,0,0) if len(genders) else (255, 192, 203)
+			gender = "Male" if len(genders) else "Female"
+			cv2.putText(image,"Gender: %s" % (gender), (x, y), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255))
+			try:
+				rgb = (image[(x+x+w)/2][y+2*h])
+				for i in xrange(0, 40):
+					for j in xrange(0, 40):
+						image[i][j] = rgb
+			except:
+				pass
+
+			cv2.rectangle(image, (xA, yA), (xB, yB), color, 2)
 	else:
 		for (xA, yA, xB, yB) in pick:
 			cv2.rectangle(image, (xA, yA), (xB, yB), (0, 255, 0), 2)
