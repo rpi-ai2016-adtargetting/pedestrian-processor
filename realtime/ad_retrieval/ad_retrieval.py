@@ -1,5 +1,7 @@
-import Image
+from PIL import Image
 import random
+import numpy as np
+import cv2
 
 class ad(object):
 	def __init__(self, gender, item, pattern, color, link):
@@ -9,10 +11,9 @@ class ad(object):
 		self.color = color
 		self.link = link
 
-	def open_image(self):
-		print "OPEN IMAGE FUNCTION "
-		image = Image.open(self.link)
-		image.show()
+	def get_image(self):
+		image = cv2.imread('./ad_retrieval/' + self.link)
+		return image
 
 	def get_item(self):
 		return self.item
@@ -22,7 +23,7 @@ class ad(object):
 
 	def get_gender(self):
 		return self.gender
-		
+
 	def get_link(self):
 		return self.link
 
@@ -37,6 +38,7 @@ def create_ads_list():
 	ads_list.append(ad("female", "pants", "solid", "yellow", "How-to-Wear-Bright-Yellow-Pants-Stylishlyme.jpg"))
 	ads_list.append(ad("male", "pants", "solid", "black", "mens_black_pants.jpg"))
 	ads_list.append(ad("male", "pants", "solid", "black", "mens_black_pants_blue_shirt.jpg"))
+	ads_list.append(ad("male", "pants", "solid", "grey", "mens_black_pants_blue_shirt.jpg"))
 	ads_list.append(ad("male", "shirt", "solid", "blue", "mens_black_pants_blue_shirt.jpg"))
 	ads_list.append(ad("male", "shorts", "solid", "black", "mens_black_shorts_grey_shirt.jpg"))
 	ads_list.append(ad("male", "shirt", "solid", "grey", "mens_black_shorts_grey_shirt.jpg"))
@@ -66,13 +68,11 @@ def create_ads_list():
 	ads_list.append(ad("female", "dress", "polkadots", "yellow", "yellow_polka_dot_womens_shirt.jpg"))
 	ads_list.append(ad("male", "shirt", "solid", "brown", "brown_shirt_mens.jpg"))
 
-
 	return ads_list
 
 
 def searched_failed():
 	print "Sorry, there is no suggested ad available"
-	exit()
 
 def search_attribute(attribute, ads_list):
 	x = 0
@@ -109,10 +109,15 @@ def search_pattern(ads_list, pattern):
 		if (pattern != i.get_pattern()):
 			ads_list.remove(i)
 
+def find_ad2(gender, item, pattern, color, all_ads):
+	passes_test = lambda ad : ad.get_gender() == gender and ad.get_color() == color
+	relevant_ads = [ad for ad in all_ads if passes_test(ad)]
+	return relevant_ads
+
 def find_ad(gender, item, pattern, color, all_ads):
+	print("Gender: %s, color %s" % (gender, color))
 	ads_list = all_ads
-	print "ads list size ", len(ads_list)
-	#keep temp list so that if one step leads to the list being empty, we can 
+	#keep temp list so that if one step leads to the list being empty, we can
 	#use temp list to go back a step
 	temp_list = ads_list
 	#find clothing for specified gender
@@ -127,7 +132,6 @@ def find_ad(gender, item, pattern, color, all_ads):
 	#find similar clothing items
 	if (item != '0'):
 		search_item(ads_list, item)
-	print "ads list size ", len(ads_list)
 
 	#make sure there are still options
 	if not ads_list:
@@ -137,8 +141,6 @@ def find_ad(gender, item, pattern, color, all_ads):
 	#find similar clothing items
 	if (pattern != '0'):
 		search_pattern(ads_list, pattern)
-
-	print "ads list size ", len(ads_list)
 
 	#make sure there are still options
 	if not ads_list:
@@ -151,28 +153,27 @@ def find_ad(gender, item, pattern, color, all_ads):
 
 	#make sure there are still options
 	if not ads_list:
-		searched_failed()
-	temp_list = ads_list
+		return []
 
 	return ads_list
 
-
-#choose a random image from the list
-def return_image(ads_list):
-	list_size = len(ads_list) - 1
-	if (list_size == -1):
-		print "Sorry, no matches were found"
+def get_random_ad(color, gender, all_ads):
+	ads_list = find_ad2(gender.lower(), '0', '0', color.lower(), all_ads)
+	if len(ads_list) < 1:
+		return 0
 	else:
-		num = random.randint(0, list_size)
-		ads_list[num].open_image()
+		num = random.randint(0, len(ads_list))
+		return ads_list[num].get_image()
 
-
-
-
-if __name__ == '__main__':
-
-	all_ads = create_ads_list()
-	c = raw_input("Color: ")
-	g = raw_input("Gender: ")
-	ads_list = 	find_ad(g.lower(), '0', '0', c.lower(), all_ads)
-	return_image(ads_list)
+# class AdSystem():
+# 	def __init__(self):
+# 		self.all_ads = create_ads_list()
+#
+# 	def get_random_ad(self, color, gender):
+# 		ads_list = find_ad(g.lower(), '0', '0', c.lower(), self.all_ads)
+# 		list_size = len(ads_list) - 1
+# 		if (list_size == -1):
+# 			print "Sorry, no matches were found"
+# 		else:
+# 			num = random.randint(0, list_size)
+# 			ads_list[num].open_image()

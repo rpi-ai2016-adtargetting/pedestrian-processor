@@ -7,6 +7,9 @@ import imutils
 import cv2
 
 from camera import VideoCamera
+#from ad_retrieval.ad_retrieval import AdSystem
+import ad_retrieval.ad_retrieval as AdSystem
+import nearest_neighbor_color
 import colorDetection
 
 from PIL import Image
@@ -21,6 +24,9 @@ genderCascade = cv2.CascadeClassifier("./haarcascade_gender_alt2.xml")
 
 # initialize our camera feed
 cam = VideoCamera()
+
+#initialize ad system
+ads = AdSystem.create_ads_list()
 
 # while the video stream is open, get the image frame by frame
 while cam.video.isOpened():
@@ -76,6 +82,12 @@ while cam.video.isOpened():
 				for i in xrange(0, 40):
 					for j in xrange(0, 40):
 						image[i][j] = rgb
+				rgb_real = [rgb[2], rgb[1], rgb[0]]
+				temp_col = nearest_neighbor_color.find_closest_color(rgb_real)
+				ad = AdSystem.get_random_ad(temp_col, gender, ads)
+				if ad is not None:
+					print(ad)
+					cv2.imshow("Ad", ad)
 			except:
 				pass
 
