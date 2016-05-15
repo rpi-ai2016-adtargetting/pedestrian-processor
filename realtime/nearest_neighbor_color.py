@@ -16,6 +16,7 @@ colors = {
 	'brown': [139, 69, 19],
 }
 
+# Return the closest color from one of the colors in the above colors dictionary given an rgb
 def find_closest_color(rgb):
 	closest_color = ''
 	closest_distance = float('Inf')
@@ -27,5 +28,3 @@ def find_closest_color(rgb):
 			closest_distance = dist
 
 	return closest_color
-
-print find_closest_color([0, 0, 0])
